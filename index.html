@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Weather Market</title>
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#0c0a08" />
+  <meta name="theme-color" content="#060c1a" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -16,56 +16,56 @@
 
   <style>
     :root {
-      --bg:         #0c0a08;
-      --bg2:        #131109;
-      --gold:       #c9a84c;
-      --gold-glow:  rgba(201,168,76,0.12);
-      --gold-line:  rgba(201,168,76,0.08);
-      --gold-deep:  #9a8060;
-      --cream:      #e8dfc8;
-      --muted:      #6d614f;
-      --green:      #4caf7a;
-      --red:        #c95252;
-      --blue:       #5a92c9;
-      --glass:      rgba(255,255,255,0.03);
-      --gb:         rgba(201,168,76,0.12);
-      --gbs:        rgba(201,168,76,0.2);
+      --bg:        #060c1a;
+      --bg2:       #0b1428;
+      --surface:   rgba(255,255,255,0.07);
+      --surface2:  rgba(255,255,255,0.11);
+      --border:    rgba(255,255,255,0.12);
+      --border-hi: rgba(255,255,255,0.22);
+      --gold:      #f0c040;
+      --gold-dim:  rgba(240,192,64,0.13);
+      --gold-line: rgba(240,192,64,0.30);
+      --gold-glow: rgba(240,192,64,0.45);
+      --text:      #eef3ff;
+      --text2:     #c8d4ec;
+      --muted:     #7888a4;
+      --muted2:    #a0b2cc;
+      --green:     #1ee882;
+      --red:       #ff4c4c;
+      --blue:      #4aaeff;
+      --amber:     #ffb820;
+      --grid:      rgba(255,255,255,0.035);
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-    html {
-      height: 100%;
-      background: var(--bg);
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { height: 100%; }
 
     body {
       min-height: 100%;
       background: var(--bg);
-      color: var(--cream);
+      color: var(--text);
       font-family: 'Barlow Condensed', sans-serif;
       overflow-x: hidden;
       -webkit-text-size-adjust: 100%;
-      text-size-adjust: 100%;
     }
 
-    /* Multi-layered Grid Background */
+    /* ── Background grid ── */
     body::before {
       content: '';
       position: fixed; inset: 0;
-      background-image: 
-        linear-gradient(var(--gold-line) 1px, transparent 1px),
-        linear-gradient(90deg, var(--gold-line) 1px, transparent 1px);
-      background-size: 44px 44px;
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 40px 40px;
       pointer-events: none;
       z-index: 0;
     }
 
-    /* Radial Vignette & Depth */
+    /* ── Radial gold haze ── */
     body::after {
       content: '';
       position: fixed; inset: 0;
-      background: radial-gradient(circle at 50% 40%, transparent 10%, #0c0a08 110%);
+      background: radial-gradient(ellipse at 50% 10%, rgba(240,192,64,0.05) 0%, transparent 60%);
       pointer-events: none;
       z-index: 0;
     }
@@ -76,277 +76,590 @@
       min-height: 100vh;
       min-height: 100svh;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: max(20px, env(safe-area-inset-top))
-               max(20px, env(safe-area-inset-right))
-               max(20px, env(safe-area-inset-bottom))
-               max(20px, env(safe-area-inset-left));
+      padding: max(14px, env(safe-area-inset-top)) 14px max(20px, env(safe-area-inset-bottom)) 14px;
     }
 
     .widget {
       width: 100%;
-      max-width: 400px;
+      max-width: 420px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      animation: fadeUp 0.8s cubic-bezier(.2,1,.3,1) both;
+      gap: 10px;
+      animation: fadeUp 0.65s cubic-bezier(.22,1,.36,1) both;
+      padding-bottom: 16px;
     }
 
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px); filter: blur(10px); }
-      to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* ── Enhanced Glass Card ─────────── */
+    /* ── Glass Card ── */
     .card {
-      background: var(--glass);
-      border: 1px solid var(--gb);
-      border-radius: 22px;
-      backdrop-filter: blur(32px);
-      -webkit-backdrop-filter: blur(32px);
-      padding: 20px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      padding: 16px 18px;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.03);
     }
 
-    .card::before {
+    .card::after {
       content: '';
       position: absolute;
-      top: 0; left: 10%; right: 10%;
+      top: 0; left: 18%; right: 18%;
       height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(201,168,76,0.4), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+      pointer-events: none;
     }
 
-    /* ── Header ─────────────── */
-    .header {
+    /* ── Header ── */
+    .header-card {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
+      padding: 11px 16px;
     }
 
-    .brand-name {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 5px;
-      color: var(--gold);
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-
-    .location-row {
+    .brand {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 12px;
-      color: var(--muted);
-      letter-spacing: 1px;
-      font-weight: 500;
     }
 
     .live-dot {
       width: 6px; height: 6px;
       background: var(--green);
       border-radius: 50%;
-      box-shadow: 0 0 8px var(--green);
-      animation: livePulse 2.5s ease infinite;
+      flex-shrink: 0;
+      animation: livePulse 2.4s ease infinite;
     }
 
     @keyframes livePulse {
-      0%,100% { opacity:1; transform: scale(1); }
-      50%      { opacity:0.5; transform: scale(0.8); }
+      0%,100% { opacity:1; box-shadow: 0 0 0 0 rgba(30,232,130,.6); }
+      60%      { opacity:.65; box-shadow: 0 0 0 6px rgba(30,232,130,0); }
+    }
+
+    .brand-name {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     .clock {
       font-family: 'Courier Prime', monospace;
       font-size: 13px;
-      color: var(--muted);
+      color: var(--text2);
       letter-spacing: 1px;
     }
 
     .install-btn {
       display: none;
-      margin-top: 8px;
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 9px;
-      font-weight: 700;
+      font-size: 8px;
       letter-spacing: 2px;
       color: var(--gold);
-      background: var(--gold-glow);
+      background: var(--gold-dim);
       border: 1px solid var(--gold-line);
-      border-radius: 6px;
-      padding: 6px 12px;
+      border-radius: 5px;
+      padding: 4px 10px;
       cursor: pointer;
       text-transform: uppercase;
-      transition: all 0.2s;
+      min-height: 28px;
     }
-    .install-btn:active { transform: scale(0.96); background: var(--gbs); }
 
-    /* ── Price Section ──────────── */
+    /* ── Search ── */
+    .search-wrap {
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 44px 12px 42px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+    }
+
+    .search-input::placeholder { color: var(--muted); }
+
+    .search-input:focus {
+      border-color: var(--gold-line);
+      box-shadow: 0 0 0 3px var(--gold-dim);
+    }
+
+    .search-input:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted2);
+      font-size: 17px;
+      pointer-events: none;
+      line-height: 1;
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: var(--muted2);
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      font-size: 10px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      padding: 0;
+      display: none;
+    }
+
+    .search-clear.vis { display: flex; }
+
+    .search-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0; right: 0;
+      background: #0e1a2e;
+      border: 1px solid var(--border-hi);
+      border-radius: 12px;
+      overflow: hidden;
+      z-index: 200;
+      box-shadow: 0 24px 48px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.04);
+    }
+
+    .search-dropdown.open { display: block; }
+
+    .search-result {
+      padding: 12px 16px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.12s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .search-result:last-child { border-bottom: none; }
+    .search-result:hover, .search-result:active { background: var(--surface2); }
+
+    .sr-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--gold);
+      flex-shrink: 0;
+      opacity: 0.55;
+    }
+
+    .sr-info { flex: 1; }
+    .sr-name { font-size: 14px; font-weight: 600; color: var(--text); letter-spacing: 0.3px; }
+    .sr-sub  { font-size: 11px; color: var(--muted2); margin-top: 2px; }
+
+    .search-msg {
+      padding: 16px;
+      font-size: 10px;
+      color: var(--muted);
+      text-align: center;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* ── City Tabs ── */
+    .city-tabs {
+      display: flex;
+      gap: 7px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-bottom: 2px;
+    }
+
+    .city-tabs::-webkit-scrollbar { display: none; }
+
+    .city-tab {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 13px;
+      border-radius: 30px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: all 0.2s;
+      backdrop-filter: blur(16px);
+    }
+
+    .tab-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .tab-name {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--muted2);
+      text-transform: uppercase;
+    }
+
+    .tab-temp {
+      font-family: 'Courier Prime', monospace;
+      font-size: 11px;
+      color: var(--text2);
+    }
+
+    .tab-close {
+      width: 15px; height: 15px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      line-height: 1;
+      padding: 0;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .tab-close:hover { background: rgba(255,76,76,0.3); color: var(--red); }
+
+    .tab-spin {
+      width: 8px; height: 8px;
+      border: 1.5px solid rgba(255,255,255,0.15);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .max-badge {
+      display: flex;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 30px;
+      border: 1px solid rgba(255,76,76,0.25);
+      background: rgba(255,76,76,0.07);
+      flex-shrink: 0;
+    }
+
+    .max-badge-text {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--red);
+      text-transform: uppercase;
+    }
+
+    /* ── Price Card ── */
     .ticker-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
+      margin-bottom: 6px;
     }
 
     .ticker-sym {
       font-family: 'Courier Prime', monospace;
-      font-size: 11px;
+      font-size: 10px;
       color: var(--muted);
       letter-spacing: 3px;
     }
 
     .badge {
       font-family: 'Courier Prime', monospace;
-      font-size: 11px;
-      font-weight: 700;
+      font-size: 10px;
       padding: 3px 10px;
       border-radius: 6px;
+      letter-spacing: 0.5px;
     }
-    .badge.up   { background: rgba(76,175,122,0.15); color: var(--green); border: 1px solid rgba(76,175,122,0.25); }
-    .badge.down { background: rgba(201,82,82,0.15);  color: var(--red);   border: 1px solid rgba(201,82,82,0.25); }
-    .badge.flat { background: var(--gold-glow);     color: var(--gold);  border: 1px solid var(--gold-line); }
+    .badge.up   { background: rgba(30,232,130,.12); color: var(--green); border: 1px solid rgba(30,232,130,.28); }
+    .badge.down { background: rgba(255,76,76,.12);  color: var(--red);   border: 1px solid rgba(255,76,76,.28); }
+    .badge.flat { background: var(--gold-dim);      color: var(--gold);  border: 1px solid var(--gold-line); }
 
+    /* ── Animated Price Display ── */
     .price-display {
-      display: flex;
-      justify-content: center;
-      align-items: baseline;
-      padding: 10px 0;
-      gap: 2px;
+      text-align: center;
+      padding: 10px 0 5px;
+      line-height: 1;
+      position: relative;
+      user-select: none;
+    }
+
+    .price-neg {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(28px, 9vw, 40px);
+      font-weight: 300;
+      color: var(--red);
+      vertical-align: top;
+      line-height: 1.5;
     }
 
     .price-sym {
       font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(24px, 8vw, 32px);
+      font-size: clamp(20px, 6vw, 28px);
       font-weight: 300;
-      color: var(--gold);
-      margin-right: 4px;
+      vertical-align: top;
+      line-height: 1.95;
     }
 
     .price-int {
       font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(60px, 20vw, 88px);
+      font-size: clamp(62px, 18vw, 88px);
       font-weight: 600;
       letter-spacing: -3px;
-      background: linear-gradient(165deg, var(--cream) 30%, var(--gold-deep) 100%);
+      background: linear-gradient(160deg, #eef3ff 0%, #7a90b8 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      line-height: 0.9;
+      background-clip: text;
+      display: inline-block;
+      transition: filter 0.4s;
+    }
+
+    .price-int.flash {
+      filter: brightness(1.6) drop-shadow(0 0 16px rgba(240,192,64,0.75));
     }
 
     .price-dec {
       font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(34px, 12vw, 48px);
+      font-size: clamp(28px, 9vw, 40px);
       font-weight: 300;
+      color: var(--muted2);
+    }
+
+    .price-micro {
+      font-family: 'Courier Prime', monospace;
+      font-size: 10px;
       color: var(--muted);
-      margin-left: 2px;
+      letter-spacing: 1px;
+      display: block;
+      margin-top: 3px;
+      min-height: 14px;
     }
 
     .price-label {
-      text-align: center;
-      font-size: 9px;
-      letter-spacing: 4px;
+      font-size: 8px;
+      letter-spacing: 3px;
       color: var(--muted);
       text-transform: uppercase;
-      font-weight: 700;
-      margin-top: 8px;
+      margin-top: 5px;
+    }
+
+    @keyframes microFlux {
+      0%   { opacity: 1; transform: translateY(0); }
+      25%  { opacity: 0.5; transform: translateY(-1px); }
+      75%  { opacity: 0.5; transform: translateY(1px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .price-dec.ticking {
+      animation: microFlux 0.38s ease;
     }
 
     .divider {
       height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gbs), transparent);
-      margin: 20px 0;
+      background: linear-gradient(90deg, transparent, var(--border-hi), transparent);
+      margin: 12px 0;
     }
 
     .sentiment-row {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .s-badge {
-      font-size: 9px;
-      font-weight: 800;
-      letter-spacing: 2px;
-      padding: 4px 12px;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      padding: 3px 10px;
       border-radius: 20px;
       border: 1px solid currentColor;
       text-transform: uppercase;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .s-desc {
       font-size: 11px;
-      color: var(--muted);
-      letter-spacing: 0.5px;
-      font-weight: 500;
+      color: var(--muted2);
+      letter-spacing: 0.3px;
     }
 
-    /* ── Metrics Grid ─────────── */
+    /* ── Metrics Grid ── */
     .metrics-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 8px;
     }
 
     .metric {
-      background: var(--glass);
-      border: 1px solid var(--gb);
-      border-radius: 18px;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      backdrop-filter: blur(16px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 20%; right: 20%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
     }
 
     .m-label {
-      font-size: 8px;
-      font-weight: 800;
-      letter-spacing: 3px;
+      font-size: 7.5px;
+      font-weight: 700;
+      letter-spacing: 2px;
       color: var(--muted);
       text-transform: uppercase;
-      margin-bottom: 8px;
+      margin-bottom: 5px;
     }
 
     .m-value {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 34px;
+      font-size: 30px;
       font-weight: 600;
       line-height: 1;
     }
 
     .m-unit {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      margin-left: 2px;
+      font-size: 12px;
+      font-weight: 400;
     }
 
     .m-sub {
-      font-size: 9px;
-      color: var(--muted);
-      margin-top: 6px;
-      letter-spacing: 0.5px;
+      font-size: 8.5px;
+      color: var(--muted2);
+      margin-top: 5px;
+      letter-spacing: 0.3px;
     }
 
-    /* ── Chart ─────────── */
-    .f-label {
-      font-size: 8px;
-      font-weight: 800;
-      letter-spacing: 3px;
+    /* ── Comparison Panel ── */
+    .comp-label {
+      font-size: 7.5px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
       color: var(--muted);
       text-transform: uppercase;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
+    }
+
+    .comp-rows { display: flex; flex-direction: column; gap: 11px; }
+
+    .comp-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .comp-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .comp-city {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: var(--text2);
+      text-transform: uppercase;
+      width: 70px;
+      flex-shrink: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .comp-bar-wrap {
+      flex: 1;
+      height: 8px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .comp-bar {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 1.2s cubic-bezier(.22,1,.36,1);
+    }
+
+    .comp-temp {
+      font-family: 'Courier Prime', monospace;
+      font-size: 12px;
+      width: 44px;
+      text-align: right;
+      flex-shrink: 0;
+      font-weight: 700;
+    }
+
+    .comp-delta {
+      font-family: 'Courier Prime', monospace;
+      font-size: 9px;
+      width: 36px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* ── Forecast Chart ── */
+    .f-label {
+      font-size: 7.5px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 13px;
     }
 
     .f-bars {
       display: flex;
       align-items: flex-end;
-      gap: 8px;
-      height: 70px;
-      padding-bottom: 4px;
+      gap: 5px;
+      height: 60px;
     }
 
     .f-col {
@@ -356,102 +669,109 @@
       align-items: center;
       height: 100%;
       justify-content: flex-end;
-      gap: 6px;
+      gap: 3px;
     }
 
-    .f-temp {
-      font-family: 'Courier Prime', monospace;
-      font-size: 8.5px;
-      font-weight: 700;
-      color: var(--cream);
-    }
+    .f-temp { font-family: 'Courier Prime', monospace; font-size: 8px; color: var(--text2); }
 
     .f-bar {
       width: 100%;
-      border-radius: 4px 4px 2px 2px;
-      background: linear-gradient(to top, var(--gold), rgba(201,168,76,0.05));
-      transition: height 1s ease-out;
+      border-radius: 3px 3px 0 0;
+      background: linear-gradient(to top, rgba(240,192,64,.85), rgba(240,192,64,.1));
     }
 
-    .f-time {
-      font-family: 'Courier Prime', monospace;
-      font-size: 8.5px;
-      color: var(--muted);
-    }
+    .f-time { font-size: 8px; color: var(--muted); }
 
-    /* ── Ticker Tape ─────────── */
+    /* ── Ticker Tape ── */
     .ticker-tape {
       overflow: hidden;
-      border-radius: 12px;
-      background: rgba(201,168,76,0.04);
-      border: 1px solid var(--gold-line);
-      padding: 8px 0;
-      /* Smooth fade mask at edges */
-      -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
-      mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      padding: 7px 0;
     }
 
     .ticker-inner {
       display: flex;
       width: max-content;
-      animation: scroll 30s linear infinite;
+      animation: scroll 32s linear infinite;
     }
 
     .t-item {
       font-family: 'Courier Prime', monospace;
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--gold);
-      letter-spacing: 1.5px;
-      padding: 0 24px;
-      white-space: nowrap;
+      font-size: 9px;
+      color: var(--muted2);
+      letter-spacing: 1px;
+      padding: 0 16px;
     }
+
+    .t-sep { color: var(--gold); opacity: 0.5; padding: 0; }
 
     @keyframes scroll {
       from { transform: translateX(0); }
       to   { transform: translateX(-50%); }
     }
 
-    /* ── Loading/Error States ──────────────── */
-    .loading-state {
+    /* ── Loading / Error States ── */
+    .loading-card {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 20px;
-      padding: 60px 0;
+      gap: 16px;
+      padding: 52px 24px;
+      text-align: center;
     }
 
     .spinner {
-      width: 32px; height: 32px;
-      border: 2px solid var(--gold-line);
+      width: 28px; height: 28px;
+      border: 2px solid var(--border);
       border-top-color: var(--gold);
       border-radius: 50%;
-      animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      animation: spin 0.9s linear infinite;
     }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
 
     .loading-text {
-      font-size: 10px;
-      letter-spacing: 4px;
+      font-size: 9px;
+      letter-spacing: 3.5px;
       color: var(--muted);
-      font-weight: 700;
+      text-transform: uppercase;
     }
 
-    /* ── Mobile Optimization ── */
+    .error-card { padding: 36px 24px; text-align: center; }
+    .e-title { font-size: 10px; color: var(--red); letter-spacing: 2.5px; margin-bottom: 10px; text-transform: uppercase; }
+    .e-msg { font-size: 12px; color: var(--muted2); line-height: 1.6; margin-bottom: 20px; }
+
+    .retry-btn {
+      background: var(--gold-dim);
+      border: 1px solid var(--gold-line);
+      color: var(--gold);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 10px;
+      letter-spacing: 3px;
+      padding: 10px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+
+    .retry-btn:hover {
+      background: rgba(240,192,64,0.22);
+      box-shadow: 0 0 20px rgba(240,192,64,0.15);
+    }
+
     @media (max-width: 380px) {
-      .widget { gap: 10px; }
-      .card { padding: 16px 20px; }
-      .metric { padding: 14px; }
-      .price-int { font-size: clamp(50px, 18vw, 70px); }
-      .m-value { font-size: 28px; }
+      .card { padding: 13px 14px; }
+      .metric { padding: 11px 12px; }
+      .price-int { font-size: clamp(52px, 16vw, 74px); }
     }
 
-    @media (max-height: 700px) and (orientation: landscape) {
-      #app { align-items: flex-start; padding: 20px; }
-      .price-display { padding: 5px 0; }
-      .price-int { font-size: 50px; }
-      .f-bars { height: 45px; }
+    @media (max-height: 600px) and (orientation: landscape) {
+      #app { align-items: flex-start; }
+      .widget { gap: 7px; }
+      .price-display { padding: 4px 0 3px; }
+      .price-int { font-size: clamp(40px, 11vh, 58px); }
+      .f-bars { height: 42px; }
     }
   </style>
 </head>
@@ -459,17 +779,16 @@
 
 <div id="app">
   <div class="widget">
-    <div class="card loading-state">
+    <div class="card loading-card">
       <div class="spinner"></div>
-      <div class="loading-text">SYNCING MARKET TERMINAL...</div>
+      <div class="loading-text">OPENING MARKET...</div>
     </div>
   </div>
 </div>
 
 <script>
-  // Note: All original JavaScript logic remains exactly as provided
+  // ── PWA ──────────────────────────────────────────────────
   let deferredPrompt = null;
-
   window.addEventListener('beforeinstallprompt', e => {
     e.preventDefault();
     deferredPrompt = e;
@@ -487,233 +806,639 @@
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }
 
+  // ── State ────────────────────────────────────────────────
+  const MAX_CITIES  = 3;
+  const CITY_COLORS = ['#f0c040', '#1ee882', '#4aaeff'];
+
+  let cities     = [];
+  let activeIdx  = 0;
+  let clockTimer = null, refreshTimer = null, microTimer = null, searchTimer = null;
+  let _uid       = 0;
+  const uid      = () => ++_uid;
+
+  // ── WMO Code Map ─────────────────────────────────────────
   const WMO = {
-    0:  { label: 'BULL MARKET',     desc: 'Clear skies · Maximum returns',     cls: 'up',   col: '#4caf7a' },
-    1:  { label: 'BULL MARKET',     desc: 'Mainly clear · Strong session',      cls: 'up',   col: '#4caf7a' },
-    2:  { label: 'STEADY MARKET',   desc: 'Partly cloudy · Holding ground',     cls: 'flat', col: '#c9a84c' },
-    3:  { label: 'SIDEWAYS TREND',  desc: 'Overcast · Uncertain direction',      cls: 'flat', col: '#c9a84c' },
-    45: { label: 'LOW VISIBILITY',  desc: 'Foggy · Wait and watch',             cls: 'flat', col: '#c9a84c' },
-    48: { label: 'LOW VISIBILITY',  desc: 'Icy fog · Risk-off mode',            cls: 'flat', col: '#c9a84c' },
-    51: { label: 'BEAR MARKET',     desc: 'Light drizzle · Selling pressure',   cls: 'down', col: '#c95252' },
-    53: { label: 'BEAR MARKET',     desc: 'Drizzle · Losses accumulating',      cls: 'down', col: '#c95252' },
-    55: { label: 'BEAR MARKET',     desc: 'Dense drizzle · Deep in red',        cls: 'down', col: '#c95252' },
-    61: { label: 'BEAR MARKET',     desc: 'Slight rain · Dip incoming',         cls: 'down', col: '#c95252' },
-    63: { label: 'BEAR MARKET',     desc: 'Moderate rain · In the red',         cls: 'down', col: '#c95252' },
-    65: { label: 'HEAVY SELLOFF',   desc: 'Heavy rain · Panic selling',         cls: 'down', col: '#c95252' },
-    71: { label: 'FROZEN ASSETS',   desc: 'Slight snow · Trading paused',       cls: 'flat', col: '#5a92c9' },
-    73: { label: 'FROZEN ASSETS',   desc: 'Moderate snow · Assets locked',      cls: 'flat', col: '#5a92c9' },
-    75: { label: 'FROZEN ASSETS',   desc: 'Heavy snow · Circuit breaker',       cls: 'down', col: '#5a92c9' },
-    77: { label: 'FROZEN ASSETS',   desc: 'Snow grains · Market halted',        cls: 'flat', col: '#5a92c9' },
-    80: { label: 'VOLATILE MARKET', desc: 'Rain showers · High turbulence',     cls: 'down', col: '#c95252' },
-    81: { label: 'VOLATILE MARKET', desc: 'Heavy showers · Wild swings',        cls: 'down', col: '#c95252' },
-    82: { label: 'MARKET CRASH',    desc: 'Violent showers · Stop losses hit',  cls: 'down', col: '#c95252' },
-    85: { label: 'FROZEN ASSETS',   desc: 'Snow showers · Liquidity drained',   cls: 'down', col: '#5a92c9' },
-    86: { label: 'FROZEN ASSETS',   desc: 'Heavy snow shower · Total halt',     cls: 'down', col: '#5a92c9' },
-    95: { label: 'MARKET CRASH',    desc: 'Thunderstorm · Black swan event',    cls: 'down', col: '#c95252' },
-    96: { label: 'MARKET CRASH',    desc: 'Storm + hail · Emergency halt',      cls: 'down', col: '#c95252' },
-    99: { label: 'MARKET CRASH',    desc: 'Severe storm · All positions cut',   cls: 'down', col: '#c95252' },
+    0:  { label:'BULL MARKET',     desc:'Clear skies · Maximum returns',     cls:'up',   col:'#1ee882' },
+    1:  { label:'BULL MARKET',     desc:'Mainly clear · Strong session',      cls:'up',   col:'#1ee882' },
+    2:  { label:'STEADY MARKET',   desc:'Partly cloudy · Holding ground',     cls:'flat', col:'#f0c040' },
+    3:  { label:'SIDEWAYS TREND',  desc:'Overcast · Uncertain direction',      cls:'flat', col:'#f0c040' },
+    45: { label:'LOW VISIBILITY',  desc:'Foggy · Wait and watch',             cls:'flat', col:'#f0c040' },
+    48: { label:'LOW VISIBILITY',  desc:'Icy fog · Risk-off mode',            cls:'flat', col:'#f0c040' },
+    51: { label:'BEAR MARKET',     desc:'Light drizzle · Selling pressure',   cls:'down', col:'#ff4c4c' },
+    53: { label:'BEAR MARKET',     desc:'Drizzle · Losses accumulating',      cls:'down', col:'#ff4c4c' },
+    55: { label:'BEAR MARKET',     desc:'Dense drizzle · Deep in red',        cls:'down', col:'#ff4c4c' },
+    61: { label:'BEAR MARKET',     desc:'Slight rain · Dip incoming',         cls:'down', col:'#ff4c4c' },
+    63: { label:'BEAR MARKET',     desc:'Moderate rain · In the red',         cls:'down', col:'#ff4c4c' },
+    65: { label:'HEAVY SELLOFF',   desc:'Heavy rain · Panic selling',         cls:'down', col:'#ff4c4c' },
+    66: { label:'BEAR MARKET',     desc:'Freezing rain · Stop losses',        cls:'down', col:'#4aaeff' },
+    67: { label:'HEAVY SELLOFF',   desc:'Heavy freezing rain · Margin call',  cls:'down', col:'#4aaeff' },
+    71: { label:'FROZEN ASSETS',   desc:'Slight snow · Trading paused',       cls:'flat', col:'#4aaeff' },
+    73: { label:'FROZEN ASSETS',   desc:'Moderate snow · Assets locked',      cls:'flat', col:'#4aaeff' },
+    75: { label:'FROZEN ASSETS',   desc:'Heavy snow · Circuit breaker',       cls:'down', col:'#4aaeff' },
+    77: { label:'FROZEN ASSETS',   desc:'Snow grains · Market halted',        cls:'flat', col:'#4aaeff' },
+    80: { label:'VOLATILE MARKET', desc:'Rain showers · High turbulence',     cls:'down', col:'#ff4c4c' },
+    81: { label:'VOLATILE MARKET', desc:'Heavy showers · Wild swings',        cls:'down', col:'#ff4c4c' },
+    82: { label:'MARKET CRASH',    desc:'Violent showers · Stop losses hit',  cls:'down', col:'#ff4c4c' },
+    85: { label:'FROZEN ASSETS',   desc:'Snow showers · Liquidity drained',   cls:'down', col:'#4aaeff' },
+    86: { label:'FROZEN ASSETS',   desc:'Heavy snow shower · Total halt',     cls:'down', col:'#4aaeff' },
+    95: { label:'MARKET CRASH',    desc:'Thunderstorm · Black swan event',    cls:'down', col:'#ff4c4c' },
+    96: { label:'MARKET CRASH',    desc:'Storm + hail · Emergency halt',      cls:'down', col:'#ff4c4c' },
+    99: { label:'MARKET CRASH',    desc:'Severe storm · All positions cut',   cls:'down', col:'#ff4c4c' },
   };
 
   function wmo(code) {
-    return WMO[code] || { label: 'MONITORING', desc: 'Analysing conditions...', cls: 'flat', col: '#c9a84c' };
+    return WMO[code] || { label:'MONITORING', desc:'Analysing conditions...', cls:'flat', col:'#f0c040' };
   }
 
   function uvLabel(uv) {
-    if (uv <= 2) return 'LOW';
-    if (uv <= 5) return 'MODERATE';
-    if (uv <= 7) return 'HIGH';
+    if (uv <= 2)  return 'LOW';
+    if (uv <= 5)  return 'MODERATE';
+    if (uv <= 7)  return 'HIGH';
     if (uv <= 10) return 'VERY HIGH';
     return 'EXTREME';
   }
 
-  let _clk = null;
-  function startClock() {
-    if (_clk) clearInterval(_clk);
-    tick();
-    _clk = setInterval(tick, 1000);
+  // ── APIs ─────────────────────────────────────────────────
+  async function geocodeSearch(q) {
+    const r = await fetch(
+      `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=en&format=json`
+    );
+    if (!r.ok) throw new Error('Geocoding failed');
+    const d = await r.json();
+    return d.results || [];
   }
 
-  function tick() {
-    const el = document.getElementById('clk');
-    if (!el) return;
-    const n = new Date();
-    el.textContent = n.toLocaleTimeString('en-IN', {
-      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-    });
-  }
-
-  function getLocation() {
-    return new Promise((ok, fail) => {
-      if (!navigator.geolocation)
-        fail(new Error('Geolocation not supported.'));
-      else
-        navigator.geolocation.getCurrentPosition(ok,
-          () => fail(new Error('Access denied. Please enable location.')));
-    });
-  }
-
-  async function getCity(lat, lng) {
+  async function reverseGeocode(lat, lng) {
     try {
-      const r = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`);
+      const r = await fetch(
+        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
+      );
       const d = await r.json();
-      return (d.city || d.locality || d.principalSubdivision || 'UNKNOWN').toUpperCase();
-    } catch { return 'UNKNOWN'; }
+      return {
+        name:    (d.city || d.locality || d.principalSubdivision || 'My Location').toUpperCase(),
+        country: d.countryCode || ''
+      };
+    } catch {
+      return { name:'MY LOCATION', country:'' };
+    }
   }
 
-  async function getWeather(lat, lng) {
+  async function fetchWeather(lat, lng) {
     const url = `https://api.open-meteo.com/v1/forecast` +
       `?latitude=${lat}&longitude=${lng}` +
       `&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code,uv_index` +
-      `&hourly=temperature_2m` +
-      `&timezone=auto&forecast_days=1`;
+      `&hourly=temperature_2m&timezone=auto&forecast_days=1`;
     const r = await fetch(url);
-    if (!r.ok) throw new Error('Network error.');
+    if (!r.ok) throw new Error('Weather unavailable');
     return r.json();
   }
 
-  function renderWidget(data, city) {
-    const c = data.current;
-    const hourly = data.hourly;
-    const temp = c.temperature_2m;
-    const feels = c.apparent_temperature;
-    const humidity = c.relative_humidity_2m;
-    const wind = c.wind_speed_10m;
-    const uv = c.uv_index ?? 0;
-    const info = wmo(c.weather_code);
+  // ── Temperature Animation Engine ─────────────────────────
+  const _anims = {};
 
-    const hNow = new Date().getHours();
-    const h6 = Math.max(0, hNow - 6);
-    const chg = +(temp - (hourly.temperature_2m[h6] ?? temp)).toFixed(1);
-    const sign = chg >= 0 ? '+' : '';
+  function animateCounter(cityId, fromVal, toVal, duration) {
+    duration = duration || 1150;
+    if (_anims[cityId]) cancelAnimationFrame(_anims[cityId]);
+    const start = performance.now();
+    const delta = toVal - fromVal;
 
-    const fcHours = [];
-    for (let i = hNow + 1; i <= Math.min(hNow + 6, 23); i++) {
-      fcHours.push({ h: String(i).padStart(2,'0'), t: hourly.temperature_2m[i] ?? temp });
+    function step(now) {
+      const t    = Math.min((now - start) / duration, 1);
+      // Elastic ease-out — natural overshoot for "live ticker" feel
+      const ease = t === 1 ? 1
+        : 1 - Math.pow(2, -10 * t) * Math.cos((t * 10 - 0.75) * (2 * Math.PI) / 3);
+      const cur  = fromVal + delta * ease;
+      updateTempDOM(cityId, cur);
+      if (t < 1) {
+        _anims[cityId] = requestAnimationFrame(step);
+      } else {
+        delete _anims[cityId];
+        updateTempDOM(cityId, toVal);
+        flashTemp(cityId);
+      }
+    }
+    _anims[cityId] = requestAnimationFrame(step);
+  }
+
+  function updateTempDOM(cityId, val) {
+    const intEl  = document.getElementById('ti-' + cityId);
+    const decEl  = document.getElementById('td-' + cityId);
+    const signEl = document.getElementById('ts-' + cityId);
+    if (!intEl || !decEl) return;
+    const abs = Math.abs(val);
+    intEl.textContent = Math.floor(abs);
+    // Show 2 decimal places (e.g. .47) — enough to see tiny changes
+    decEl.textContent = '.' + (abs % 1).toFixed(4).slice(2, 4);
+    if (signEl) signEl.style.display = val < 0 ? 'inline' : 'none';
+  }
+
+  function flashTemp(cityId) {
+    const intEl = document.getElementById('ti-' + cityId);
+    if (!intEl) return;
+    intEl.classList.add('flash');
+    setTimeout(function() { intEl.classList.remove('flash'); }, 500);
+  }
+
+  // Micro-flux: subtle live-data animation every ~4 seconds on active city
+  function startMicroFlux() {
+    if (microTimer) clearInterval(microTimer);
+    microTimer = setInterval(function() {
+      const city = cities[activeIdx];
+      if (!city || !city.weather || _anims[city.id]) return;
+      const actual = city.weather.current.temperature_2m;
+      // Tiny simulated fluctuation: ±0.009°
+      const micro = actual + (Math.random() - 0.5) * 0.018;
+      const decEl = document.getElementById('td-' + city.id);
+      if (decEl) {
+        const abs = Math.abs(micro);
+        decEl.textContent = '.' + (abs % 1).toFixed(4).slice(2, 4);
+        decEl.classList.remove('ticking');
+        void decEl.offsetWidth;
+        decEl.classList.add('ticking');
+        setTimeout(function() { updateTempDOM(city.id, actual); }, 420);
+      }
+      // Update micro display line
+      const microEl = document.getElementById('tm-' + city.id);
+      if (microEl) {
+        const s   = micro >= 0 ? '+' : '−';
+        const abs2 = Math.abs(micro);
+        const d4  = (abs2 % 1).toFixed(4).slice(1); // ".XXXX"
+        microEl.textContent = 'LIVE  ' + s + Math.floor(abs2) + d4 + ' °C';
+      }
+    }, 3800);
+  }
+
+  // ── Clock ─────────────────────────────────────────────────
+  function startClock() {
+    if (clockTimer) clearInterval(clockTimer);
+    tickClock();
+    clockTimer = setInterval(tickClock, 1000);
+  }
+
+  function tickClock() {
+    var el = document.getElementById('clk');
+    if (!el) return;
+    el.textContent = new Date().toLocaleTimeString('en-IN', {
+      hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false
+    });
+  }
+
+  // ── City Management ───────────────────────────────────────
+  async function addCurrentLocation() {
+    try {
+      const pos = await new Promise(function(ok, fail) {
+        if (!navigator.geolocation) return fail(new Error('Geolocation not supported'));
+        navigator.geolocation.getCurrentPosition(ok, fail, { timeout:12000 });
+      });
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      const geo = await reverseGeocode(lat, lng);
+      addCity({ name:geo.name, country:geo.country, lat:lat, lng:lng, isHome:true });
+    } catch(e) {
+      renderSearchOnlyState();
+    }
+  }
+
+  function addCity(info) {
+    if (cities.length >= MAX_CITIES) return;
+    // Deduplicate by proximity (~5km)
+    for (var i = 0; i < cities.length; i++) {
+      if (Math.abs(cities[i].lat - info.lat) < 0.05 &&
+          Math.abs(cities[i].lng - info.lng) < 0.05) return;
+    }
+    var city = {
+      id:          uid(),
+      name:        info.name.toUpperCase().trim(),
+      country:    (info.country || '').toUpperCase(),
+      lat:         info.lat,
+      lng:         info.lng,
+      weather:     null,
+      prevTemp:    null,
+      animFrom:    null,
+      loading:     true,
+      error:       null,
+      isHome:      !!info.isHome,
+      colorIdx:    cities.length % 3
+    };
+    cities.push(city);
+    activeIdx = cities.length - 1;
+    render();
+    loadCity(city.id);
+  }
+
+  async function loadCity(cityId) {
+    var city = cities.find(function(c) { return c.id === cityId; });
+    if (!city) return;
+    try {
+      var weather  = await fetchWeather(city.lat, city.lng);
+      var newTemp  = weather.current.temperature_2m;
+      var fromTemp = city.prevTemp !== null ? city.prevTemp : newTemp;
+      city.weather  = weather;
+      city.loading  = false;
+      city.error    = null;
+      city.animFrom = fromTemp;
+      city.prevTemp = newTemp;
+    } catch(e) {
+      city.loading = false;
+      city.error   = 'Market data unavailable. Please retry.';
+    }
+    render();
+    // Kick off animation after DOM paint
+    requestAnimationFrame(function() {
+      cities.forEach(function(c) {
+        if (c.animFrom !== null && c.prevTemp !== null) {
+          if (Math.abs(c.animFrom - c.prevTemp) > 0.00005) {
+            animateCounter(c.id, c.animFrom, c.prevTemp);
+          } else {
+            updateTempDOM(c.id, c.prevTemp);
+            flashTemp(c.id);
+          }
+          c.animFrom = null;
+        }
+      });
+    });
+  }
+
+  function removeCity(cityId) {
+    if (_anims[cityId]) { cancelAnimationFrame(_anims[cityId]); delete _anims[cityId]; }
+    var idx = cities.findIndex(function(c) { return c.id === cityId; });
+    if (idx === -1) return;
+    cities.splice(idx, 1);
+    cities.forEach(function(c, i) { c.colorIdx = i % 3; });
+    if (activeIdx >= cities.length) activeIdx = Math.max(0, cities.length - 1);
+    render();
+  }
+
+  function setActive(idx) {
+    activeIdx = idx;
+    render();
+    requestAnimationFrame(function() {
+      var c = cities[idx];
+      if (c && c.prevTemp !== null) updateTempDOM(c.id, c.prevTemp);
+    });
+  }
+
+  function startAutoRefresh() {
+    if (refreshTimer) clearInterval(refreshTimer);
+    refreshTimer = setInterval(function() {
+      cities.forEach(function(c) { if (!c.loading) loadCity(c.id); });
+    }, 600000);
+  }
+
+  // ── Search ────────────────────────────────────────────────
+  var _searchResults = [];
+
+  function onSearchInput(val) {
+    if (searchTimer) clearTimeout(searchTimer);
+    var dropdown = document.getElementById('sd');
+    var clearBtn = document.getElementById('sc');
+    if (clearBtn) clearBtn.classList.toggle('vis', val.length > 0);
+
+    if (!val || val.trim().length < 2) {
+      _searchResults = [];
+      if (dropdown) { dropdown.innerHTML = ''; dropdown.classList.remove('open'); }
+      return;
     }
 
-    const allT = fcHours.map(f => f.t);
-    const minT = Math.min(...allT, temp - 0.1);
-    const maxT = Math.max(...allT, temp + 0.1);
-    const rng = maxT - minT || 1;
+    if (dropdown) {
+      dropdown.innerHTML = '<div class="search-msg">SEARCHING MARKETS...</div>';
+      dropdown.classList.add('open');
+    }
 
-    const fBars = fcHours.map(f => {
-      const h = Math.round(((f.t - minT) / rng) * 48 + 10);
-      return `<div class="f-col">
-        <span class="f-temp">${f.t.toFixed(0)}°</span>
-        <div class="f-bar" style="height:${h}px"></div>
-        <span class="f-time">${f.h}H</span>
-      </div>`;
+    searchTimer = setTimeout(async function() {
+      try {
+        var results = await geocodeSearch(val.trim());
+        _searchResults = results;
+        renderDropdown(results, dropdown);
+      } catch(e) {
+        if (dropdown) dropdown.innerHTML = '<div class="search-msg">SEARCH FAILED — TRY AGAIN</div>';
+      }
+    }, 280);
+  }
+
+  function renderDropdown(results, dropdown) {
+    if (!dropdown) return;
+    if (!results || !results.length) {
+      dropdown.innerHTML = '<div class="search-msg">NO MARKETS FOUND</div>';
+      dropdown.classList.add('open');
+      return;
+    }
+    dropdown.innerHTML = results.slice(0,5).map(function(r, i) {
+      var sub = [r.admin1, r.country].filter(Boolean).join(', ');
+      return '<div class="search-result" onclick="selectResult(' + i + ')">' +
+        '<div class="sr-dot"></div>' +
+        '<div class="sr-info">' +
+          '<div class="sr-name">' + r.name + (r.country_code ? ', ' + r.country_code : '') + '</div>' +
+          (sub ? '<div class="sr-sub">' + sub + '</div>' : '') +
+        '</div></div>';
+    }).join('');
+    dropdown.classList.add('open');
+  }
+
+  function selectResult(idx) {
+    var r = _searchResults[idx];
+    if (!r) return;
+    closeSearch();
+    if (cities.length >= MAX_CITIES) return;
+    addCity({
+      name:    r.name,
+      country: r.country_code || r.country || '',
+      lat:     r.latitude,
+      lng:     r.longitude
+    });
+  }
+
+  function closeSearch() {
+    var input = document.getElementById('si');
+    var dropdown = document.getElementById('sd');
+    var clearBtn = document.getElementById('sc');
+    if (input)    input.value = '';
+    if (dropdown) { dropdown.innerHTML = ''; dropdown.classList.remove('open'); }
+    if (clearBtn) clearBtn.classList.remove('vis');
+    _searchResults = [];
+  }
+
+  function clearSearch() {
+    closeSearch();
+    var si = document.getElementById('si');
+    if (si) si.focus();
+  }
+
+  // ── Render ────────────────────────────────────────────────
+  function render() {
+    var app = document.getElementById('app');
+    if (!app) return;
+
+    if (!cities.length) {
+      app.innerHTML = '<div class="widget"><div class="card loading-card"><div class="spinner"></div><div class="loading-text">OPENING MARKET...</div></div></div>';
+      return;
+    }
+
+    var city = cities[activeIdx] || cities[0];
+    var parts = [
+      renderHeader(),
+      renderSearch(),
+      renderTabs(),
+      renderPriceCard(city),
+      (!city.loading && !city.error && city.weather) ? renderMetrics(city) : '',
+      (cities.filter(function(c) { return c.weather && !c.loading; }).length >= 2) ? renderComparison() : '',
+      (!city.loading && !city.error && city.weather) ? renderForecast(city) : '',
+      (!city.loading && !city.error && city.weather) ? renderTicker(city) : '',
+    ];
+    app.innerHTML = '<div class="widget">' + parts.join('') + '</div>';
+    startClock();
+    if (deferredPrompt) {
+      var b = document.getElementById('install-btn');
+      if (b) b.style.display = 'block';
+    }
+    startMicroFlux();
+  }
+
+  function renderHeader() {
+    return '<div class="card header-card">' +
+      '<div class="brand"><div class="live-dot"></div><div class="brand-name">◈ &nbsp;Weather Market</div></div>' +
+      '<div class="header-right">' +
+        '<div class="clock" id="clk">--:--:--</div>' +
+        '<button class="install-btn" id="install-btn" onclick="installApp()">⬇ INSTALL</button>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function renderSearch() {
+    var atMax = cities.length >= MAX_CITIES;
+    return '<div class="search-wrap">' +
+      '<span class="search-icon">⌕</span>' +
+      '<input type="text" id="si" class="search-input"' +
+        ' placeholder="' + (atMax ? '◈  MAX 3 CITIES — REMOVE ONE TO ADD MORE' : 'SEARCH ANY CITY TO COMPARE...') + '"' +
+        (atMax ? ' disabled' : '') +
+        ' oninput="onSearchInput(this.value)"' +
+        ' onblur="setTimeout(closeSearch, 200)"' +
+        ' autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" />' +
+      '<button class="search-clear" id="sc" onclick="clearSearch()">✕</button>' +
+      '<div class="search-dropdown" id="sd"></div>' +
+    '</div>';
+  }
+
+  function renderTabs() {
+    var atMax = cities.length >= MAX_CITIES;
+    var tabs  = cities.map(function(c, i) {
+      var isActive  = (i === activeIdx);
+      var col       = CITY_COLORS[c.colorIdx];
+      var tempStr   = c.weather ? c.weather.current.temperature_2m.toFixed(1) + '°'
+                    : c.loading ? '···' : '—';
+      var canClose  = cities.length > 1;
+      var activeStyle = isActive
+        ? 'border-color:' + col + '30;background:' + col + '12'
+        : '';
+      return '<div class="city-tab' + (isActive ? ' active' : '') + '" onclick="setActive(' + i + ')" style="' + activeStyle + '">' +
+        (c.loading
+          ? '<div class="tab-spin"></div>'
+          : '<div class="tab-dot" style="background:' + col + '"></div>') +
+        '<span class="tab-name" style="' + (isActive ? 'color:' + col : '') + '">' + c.name.slice(0,10) + '</span>' +
+        '<span class="tab-temp">' + tempStr + '</span>' +
+        (canClose ? '<button class="tab-close" onclick="event.stopPropagation();removeCity(' + c.id + ')">✕</button>' : '') +
+      '</div>';
+    }).join('');
+    var maxBadge = atMax ? '<div class="max-badge"><span class="max-badge-text">MAX 3</span></div>' : '';
+    return '<div class="city-tabs">' + tabs + maxBadge + '</div>';
+  }
+
+  function renderPriceCard(city) {
+    if (city.loading) {
+      return '<div class="card loading-card"><div class="spinner"></div><div class="loading-text">LOADING ' + city.name.slice(0,12) + '...</div></div>';
+    }
+    if (city.error) {
+      return '<div class="card error-card"><div class="e-title">MARKET DISRUPTION</div><div class="e-msg">' + city.error + '</div><button class="retry-btn" onclick="loadCity(' + city.id + ')">↺ &nbsp;RETRY</button></div>';
+    }
+
+    var c      = city.weather.current;
+    var temp   = c.temperature_2m;
+    var code   = c.weather_code;
+    var info   = wmo(code);
+    var hourly = city.weather.hourly;
+    var hNow   = new Date().getHours();
+    var h6     = Math.max(0, hNow - 6);
+    var chg    = +(temp - (hourly.temperature_2m[h6] || temp)).toFixed(1);
+    var sign   = chg >= 0 ? '+' : '';
+    var col    = CITY_COLORS[city.colorIdx];
+
+    // Use animFrom for the initial render value (animation will count from here)
+    var displayVal = (city.animFrom !== null && city.animFrom !== undefined) ? city.animFrom : temp;
+    var abs    = Math.abs(displayVal);
+    var tInt   = Math.floor(abs);
+    var tDec   = '.' + (abs % 1).toFixed(4).slice(2, 4);
+    var neg    = displayVal < 0;
+
+    return '<div class="card">' +
+      '<div class="ticker-row">' +
+        '<span class="ticker-sym">WTH / ' + (city.country || 'GLB') + '</span>' +
+        '<span class="badge ' + info.cls + '">' + sign + chg + '° &nbsp;6H</span>' +
+      '</div>' +
+      '<div class="price-display">' +
+        '<span class="price-neg" id="ts-' + city.id + '" style="display:' + (neg ? 'inline' : 'none') + '">&minus;</span>' +
+        '<span class="price-sym" style="color:' + col + '">°C</span>' +
+        '<span class="price-int" id="ti-' + city.id + '">' + tInt + '</span>' +
+        '<span class="price-dec" id="td-' + city.id + '">' + tDec + '</span>' +
+        '<span class="price-micro" id="tm-' + city.id + '">LIVE  +' + tInt + tDec + ' °C</span>' +
+      '</div>' +
+      '<div class="price-label">Temperature Index &nbsp;·&nbsp; ' + city.name + '</div>' +
+      '<div class="divider"></div>' +
+      '<div class="sentiment-row">' +
+        '<span class="s-badge" style="color:' + info.col + '">' + info.label + '</span>' +
+        '<span class="s-desc">' + info.desc + '</span>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function renderMetrics(city) {
+    var c        = city.weather.current;
+    var humidity = c.relative_humidity_2m;
+    var wind     = c.wind_speed_10m;
+    var uv       = c.uv_index || 0;
+    var feels    = c.apparent_temperature;
+    var uvColor  = uv > 7 ? 'var(--red)' : uv > 4 ? 'var(--amber)' : 'var(--green)';
+    return '<div class="metrics-grid">' +
+      '<div class="metric">' +
+        '<div class="m-label">Liquidity Pool</div>' +
+        '<div class="m-value" style="color:var(--blue)">' + humidity + '<span class="m-unit">%</span></div>' +
+        '<div class="m-sub">Humidity · Market fluidity</div>' +
+      '</div>' +
+      '<div class="metric">' +
+        '<div class="m-label">Volatility Index</div>' +
+        '<div class="m-value" style="color:var(--gold)">' + wind + '<span class="m-unit"> km/h</span></div>' +
+        '<div class="m-sub">Wind Speed · Turbulence</div>' +
+      '</div>' +
+      '<div class="metric">' +
+        '<div class="m-label">UV Exposure</div>' +
+        '<div class="m-value" style="color:' + uvColor + '">' + uv + '<span class="m-unit"> UV</span></div>' +
+        '<div class="m-sub">' + uvLabel(uv) + ' · Risk level</div>' +
+      '</div>' +
+      '<div class="metric">' +
+        '<div class="m-label">Adjusted Value</div>' +
+        '<div class="m-value" style="color:var(--text)">' + feels.toFixed(1) + '°</div>' +
+        '<div class="m-sub">Feels Like · Adj. price</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function renderComparison() {
+    var loaded = cities.filter(function(c) { return c.weather && !c.loading && !c.error; });
+    if (loaded.length < 2) return '';
+
+    var temps = loaded.map(function(c) { return c.weather.current.temperature_2m; });
+    var minT  = Math.min.apply(null, temps);
+    var maxT  = Math.max.apply(null, temps);
+    var rng   = maxT - minT || 1;
+
+    var maxCity = loaded.reduce(function(a, b) {
+      return a.weather.current.temperature_2m >= b.weather.current.temperature_2m ? a : b;
+    });
+
+    var rows = loaded.map(function(c) {
+      var t     = c.weather.current.temperature_2m;
+      var pct   = ((t - minT) / rng) * 80 + 8;
+      var col   = CITY_COLORS[c.colorIdx];
+      var delta = t - maxCity.weather.current.temperature_2m;
+      var dSign = delta >= 0 ? '+' : '';
+      var dCol  = delta >= 0 ? 'var(--green)' : 'var(--red)';
+      return '<div class="comp-row">' +
+        '<div class="comp-dot" style="background:' + col + '"></div>' +
+        '<div class="comp-city">' + c.name.slice(0,9) + '</div>' +
+        '<div class="comp-bar-wrap"><div class="comp-bar" style="width:' + pct + '%;background:' + col + '"></div></div>' +
+        '<div class="comp-temp" style="color:' + col + '">' + t.toFixed(1) + '°</div>' +
+        '<div class="comp-delta" style="color:' + dCol + '">' + dSign + delta.toFixed(1) + '°</div>' +
+      '</div>';
     }).join('');
 
-    const tItems = [
-      `WTH/INR  ${sign}${chg}° · 6H`,
-      `LIQUIDITY  ${humidity}%`,
-      `VOLATILITY  ${wind} KM/H`,
-      `UV EXPOSURE  ${uv} · ${uvLabel(uv)}`,
-      `ADJ VALUE  ₹${Math.abs(feels).toFixed(2)}`,
+    return '<div class="card">' +
+      '<div class="comp-label">◈ &nbsp;Market Comparison &nbsp;·&nbsp; Temperature Index</div>' +
+      '<div class="comp-rows">' + rows + '</div>' +
+    '</div>';
+  }
+
+  function renderForecast(city) {
+    var hourly  = city.weather.hourly;
+    var temp    = city.weather.current.temperature_2m;
+    var hNow    = new Date().getHours();
+    var fcHours = [];
+    for (var i = hNow + 1; i <= Math.min(hNow + 6, 23); i++) {
+      fcHours.push({ h: String(i).padStart(2,'0'), t: hourly.temperature_2m[i] || temp });
+    }
+    if (!fcHours.length) return '';
+
+    var allT = fcHours.map(function(f) { return f.t; });
+    var minT = Math.min.apply(null, allT.concat([temp - 0.1]));
+    var maxT = Math.max.apply(null, allT.concat([temp + 0.1]));
+    var rng  = maxT - minT || 1;
+
+    var bars = fcHours.map(function(f) {
+      var h = Math.round(((f.t - minT) / rng) * 46 + 6);
+      return '<div class="f-col">' +
+        '<span class="f-temp">' + f.t.toFixed(0) + '°</span>' +
+        '<div class="f-bar" style="height:' + h + 'px"></div>' +
+        '<span class="f-time">' + f.h + 'H</span>' +
+      '</div>';
+    }).join('');
+
+    return '<div class="card">' +
+      '<div class="f-label">6-Hour Price Chart &nbsp;·&nbsp; °C</div>' +
+      '<div class="f-bars">' + bars + '</div>' +
+    '</div>';
+  }
+
+  function renderTicker(city) {
+    var c      = city.weather.current;
+    var temp   = c.temperature_2m;
+    var hourly = city.weather.hourly;
+    var hNow   = new Date().getHours();
+    var h6     = Math.max(0, hNow - 6);
+    var chg    = +(temp - (hourly.temperature_2m[h6] || temp)).toFixed(1);
+    var sign   = chg >= 0 ? '+' : '';
+    var info   = wmo(c.weather_code);
+
+    var cityItems = cities
+      .filter(function(c2) { return c2.weather && !c2.loading; })
+      .map(function(c2) { return c2.name.slice(0,8) + '  ' + c2.weather.current.temperature_2m.toFixed(2) + '°C'; });
+
+    var items = cityItems.concat([
+      'CHANGE  ' + sign + chg + '° · 6H',
+      'LIQUIDITY  ' + c.relative_humidity_2m + '%',
+      'VOLATILITY  ' + c.wind_speed_10m + ' KM/H',
+      'UV INDEX  ' + (c.uv_index || 0) + ' · ' + uvLabel(c.uv_index || 0),
+      'FEELS LIKE  ' + c.apparent_temperature.toFixed(1) + '°C',
       info.label,
-    ];
-    const tHtml = (tItems.map(s =>
-      `<span class="t-item">${s}</span><span class="t-item t-sep">◈</span>`
-    ).join('') ).repeat(2);
+    ]);
 
-    const absT = Math.abs(temp);
-    const tInt = Math.floor(absT);
-    const tDec = (absT % 1).toFixed(2).slice(1);
+    var tHtml = (items.map(function(s) {
+      return '<span class="t-item">' + s + '</span><span class="t-item t-sep">◈</span>';
+    }).join('')).repeat(2);
 
-    const html = `
-      <div class="card">
-        <div class="header">
-          <div>
-            <div class="brand-name">◈ &nbsp;Weather Market</div>
-            <div class="location-row">
-              <div class="live-dot"></div>
-              <span>${city}</span>
-            </div>
-          </div>
-          <div style="text-align:right">
-            <div class="clock" id="clk">--:--:--</div>
-            <button class="install-btn" id="install-btn" onclick="installApp()">⬇ INSTALL TERMINAL</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="ticker-row">
-          <span class="ticker-sym">WTH / INR</span>
-          <span class="badge ${info.cls}">${sign}${chg}° &nbsp;6H</span>
-        </div>
-        <div class="price-display">
-          <span class="price-sym">₹</span><span class="price-int">${tInt}</span><span class="price-dec">${tDec}</span>
-        </div>
-        <div class="price-label">Temperature Index · Celsius</div>
-        <div class="divider"></div>
-        <div class="sentiment-row">
-          <span class="s-badge" style="color:${info.col}">${info.label}</span>
-          <span class="s-desc">${info.desc}</span>
-        </div>
-      </div>
-
-      <div class="metrics-grid">
-        <div class="metric">
-          <div class="m-label">Liquidity Pool</div>
-          <div class="m-value" style="color:var(--blue)">${humidity}<span class="m-unit">%</span></div>
-          <div class="m-sub">Humidity · Fluidity</div>
-        </div>
-        <div class="metric">
-          <div class="m-label">Volatility Index</div>
-          <div class="m-value" style="color:var(--gold)">${wind}<span class="m-unit">km/h</span></div>
-          <div class="m-sub">Wind · Market Swings</div>
-        </div>
-        <div class="metric">
-          <div class="m-label">UV Exposure</div>
-          <div class="m-value" style="color:${uv>7?'var(--red)':uv>4?'var(--gold)':'var(--green)'}">${uv}<span class="m-unit"> UV</span></div>
-          <div class="m-sub">${uvLabel(uv)} · Risk</div>
-        </div>
-        <div class="metric">
-          <div class="m-label">Adjusted Value</div>
-          <div class="m-value">₹${Math.abs(feels).toFixed(2)}</div>
-          <div class="m-sub">Feels Like · Adj.</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="f-label">6-Hour Price Projections</div>
-        <div class="f-bars">${fBars}</div>
-      </div>
-
-      <div class="ticker-tape">
-        <div class="ticker-inner">${tHtml}</div>
-      </div>
-    `;
-
-    document.getElementById('app').innerHTML = `<div class="widget">${html}</div>`;
-    if (deferredPrompt) document.getElementById('install-btn').style.display = 'block';
-    startClock();
+    return '<div class="ticker-tape"><div class="ticker-inner">' + tHtml + '</div></div>';
   }
 
-  function showError(msg) {
-    document.getElementById('app').innerHTML = `
-      <div class="widget">
-        <div class="card" style="text-align:center; padding: 40px 20px;">
-          <div class="brand-name" style="margin-bottom:20px">◈ WEATHER MARKET</div>
-          <div style="font-size:12px; color:var(--red); letter-spacing:2px; margin-bottom:10px;">TERMINAL OFFLINE</div>
-          <div style="font-size:11px; color:var(--muted); line-height:1.6; margin-bottom:24px;">${msg}</div>
-          <button class="retry-btn" style="background:var(--gold-glow); border:1px solid var(--gold-line); color:var(--gold); padding: 10px 24px; border-radius: 8px; font-family:inherit; font-size:10px; letter-spacing:2px; cursor:pointer;" onclick="location.reload()">REBOOT TERMINAL</button>
-        </div>
-      </div>`;
+  function renderSearchOnlyState() {
+    document.getElementById('app').innerHTML =
+      '<div class="widget">' +
+        '<div class="card" style="padding:32px 20px;text-align:center">' +
+          '<div class="brand-name" style="margin-bottom:12px">◈ &nbsp;Weather Market</div>' +
+          '<div class="e-title">LOCATION ACCESS NEEDED</div>' +
+          '<div class="e-msg" style="margin-bottom:0">Enable location access to auto-load your city, or search below.</div>' +
+          '<div class="search-wrap" style="margin-top:18px">' +
+            '<span class="search-icon">⌕</span>' +
+            '<input type="text" id="si" class="search-input" placeholder="SEARCH YOUR CITY TO BEGIN..."' +
+              ' oninput="onSearchInput(this.value)"' +
+              ' onblur="setTimeout(closeSearch, 200)"' +
+              ' autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" />' +
+            '<div class="search-dropdown" id="sd"></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
   }
 
+  // ── Init ──────────────────────────────────────────────────
   async function init() {
-    try {
-      const pos = await getLocation();
-      const { latitude: lat, longitude: lng } = pos.coords;
-      const [city, weather] = await Promise.all([getCity(lat, lng), getWeather(lat, lng)]);
-      renderWidget(weather, city);
-      setInterval(async () => {
-        try { renderWidget(await getWeather(lat, lng), city); } catch {}
-      }, 600_000);
-    } catch (e) { showError(e.message); }
+    await addCurrentLocation();
+    startAutoRefresh();
   }
 
   init();
