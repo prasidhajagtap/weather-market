@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Weather Market</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0c0a08" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300&family=Barlow+Condensed:wght@300;400;500;600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:         #0c0a08;
+      --bg2:        #131109;
+      --gold:       #c9a84c;
+      --gold-glow:  rgba(201,168,76,0.15);
+      --gold-line:  rgba(201,168,76,0.1);
+      --cream:      #e8dfc8;
+      --muted:      #5c5040;
+      --green:      #4caf7a;
+      --red:        #c95252;
+      --blue:       #5a92c9;
+      --glass:      rgba(255,255,255,0.022);
+      --gb:         rgba(201,168,76,0.09);
+      --gbs:        rgba(201,168,76,0.18);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--cream);
+      font-family: 'Barlow Condensed', sans-serif;
+      overflow: hidden;
+    }
+
+    /* Graph-paper grid */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(var(--gold-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--gold-line) 1px, transparent 1px);
+      background-size: 44px 44px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Radial vignette */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, transparent 30%, #0c0a08 90%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #app {
+      position: relative;
+      z-index: 1;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+    }
+
+    .widget {
+      width: 100%;
+      max-width: 390px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      animation: fadeUp 0.7s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Glass Card ─────────── */
+    .card {
+      background: var(--glass);
+      border: 1px solid var(--gb);
+      border-radius: 18px;
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      padding: 17px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 15%; right: 15%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(201,168,76,0.35), transparent);
+    }
+
+    /* ── Header ─────────────── */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .brand-name {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .location-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+    }
+
+    .live-dot {
+      width: 5px; height: 5px;
+      background: var(--green);
+      border-radius: 50%;
+      flex-shrink: 0;
+      animation: livePulse 2.5s ease infinite;
+    }
+
+    @keyframes livePulse {
+      0%,100% { opacity:1; box-shadow: 0 0 0 0 rgba(76,175,122,.5); }
+      60%      { opacity:.6; box-shadow: 0 0 0 5px rgba(76,175,122,0); }
+    }
+
+    .clock {
+      font-family: 'Courier Prime', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 1px;
+      text-align: right;
+    }
+
+    .install-btn {
+      display: none;
+      margin-top: 6px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 8px;
+      letter-spacing: 2px;
+      color: var(--gold);
+      background: var(--gold-glow);
+      border: 1px solid var(--gold-line);
+      border-radius: 5px;
+      padding: 3px 8px;
+      cursor: pointer;
+      text-transform: uppercase;
+      float: right;
+    }
+
+    /* ── Price Card ──────────── */
+    .ticker-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .ticker-sym {
+      font-family: 'Courier Prime', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 3px;
+    }
+
+    .badge {
+      font-family: 'Courier Prime', monospace;
+      font-size: 10px;
+      padding: 2px 9px;
+      border-radius: 5px;
+      letter-spacing: 0.5px;
+    }
+    .badge.up   { background: rgba(76,175,122,.1);  color: var(--green); border: 1px solid rgba(76,175,122,.2); }
+    .badge.down { background: rgba(201,82,82,.1);   color: var(--red);   border: 1px solid rgba(201,82,82,.2); }
+    .badge.flat { background: var(--gold-glow);     color: var(--gold);  border: 1px solid var(--gold-line); }
+
+    .price-display {
+      text-align: center;
+      padding: 8px 0 5px;
+      line-height: 1;
+    }
+
+    .price-sym {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 30px;
+      font-weight: 300;
+      color: var(--gold);
+      vertical-align: top;
+      line-height: 1.7;
+    }
+
+    .price-int {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 78px;
+      font-weight: 600;
+      letter-spacing: -3px;
+      background: linear-gradient(160deg, #e8dfc8 0%, #9a8060 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .price-dec {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 44px;
+      font-weight: 300;
+      color: var(--muted);
+    }
+
+    .price-label {
+      font-size: 8px;
+      letter-spacing: 3px;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-top: 5px;
+    }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gbs), transparent);
+      margin: 13px 0;
+    }
+
+    .sentiment-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .s-badge {
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 1.8px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid currentColor;
+      text-transform: uppercase;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .s-desc {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Metrics Grid ─────────── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .metric {
+      background: var(--glass);
+      border: 1px solid var(--gb);
+      border-radius: 13px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 13px 15px;
+    }
+
+    .m-label {
+      font-size: 7.5px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .m-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 30px;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .m-unit {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+    }
+
+    .m-sub {
+      font-size: 8.5px;
+      color: var(--muted);
+      margin-top: 4px;
+      letter-spacing: 0.4px;
+    }
+
+    /* ── Forecast Chart ─────────── */
+    .f-label {
+      font-size: 7.5px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 13px;
+    }
+
+    .f-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 5px;
+      height: 58px;
+    }
+
+    .f-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+      gap: 3px;
+    }
+
+    .f-temp {
+      font-family: 'Courier Prime', monospace;
+      font-size: 7.5px;
+      color: var(--cream);
+    }
+
+    .f-bar {
+      width: 100%;
+      border-radius: 3px 3px 0 0;
+      background: linear-gradient(to top, rgba(201,168,76,.75), rgba(201,168,76,.1));
+    }
+
+    .f-time {
+      font-size: 7.5px;
+      color: var(--muted);
+    }
+
+    /* ── Ticker Tape ─────────── */
+    .ticker-tape {
+      overflow: hidden;
+      border-radius: 10px;
+      background: rgba(201,168,76,.03);
+      border: 1px solid var(--gold-line);
+      padding: 6px 0;
+    }
+
+    .ticker-inner {
+      display: flex;
+      width: max-content;
+      animation: scroll 28s linear infinite;
+    }
+
+    .t-item {
+      font-family: 'Courier Prime', monospace;
+      font-size: 9px;
+      color: var(--gold);
+      letter-spacing: 1px;
+      padding: 0 18px;
+    }
+
+    .t-sep {
+      color: var(--muted);
+      padding: 0;
+    }
+
+    @keyframes scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ── States ──────────────── */
+    .loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 48px;
+    }
+
+    .spinner {
+      width: 26px; height: 26px;
+      border: 1.5px solid var(--gb);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      font-size: 8px;
+      letter-spacing: 3.5px;
+      color: var(--muted);
+    }
+
+    .error-card {
+      padding: 36px;
+      text-align: center;
+    }
+
+    .e-title { font-size: 10px; color: var(--red); letter-spacing: 2px; margin-bottom: 10px; }
+    .e-msg   { font-size: 11px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+
+    .retry-btn {
+      background: var(--gold-glow);
+      border: 1px solid var(--gold-line);
+      color: var(--gold);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 9px;
+      letter-spacing: 3px;
+      padding: 9px 22px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <div class="widget">
+    <div class="card loading-state">
+      <div class="spinner"></div>
+      <div class="loading-text">FETCHING MARKET DATA...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── PWA Install Prompt ───────────────────────────────
+  let deferredPrompt = null;
+
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const btn = document.getElementById('install-btn');
+    if (btn) btn.style.display = 'block';
+  });
+
+  function installApp() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+  }
+
+  // ── Service Worker ───────────────────────────────────
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+
+  // ── WMO Weather Code Map ─────────────────────────────
+  const WMO = {
+    0:  { label: 'BULL MARKET',     desc: 'Clear skies · Maximum returns',     cls: 'up',   col: '#4caf7a' },
+    1:  { label: 'BULL MARKET',     desc: 'Mainly clear · Strong session',      cls: 'up',   col: '#4caf7a' },
+    2:  { label: 'STEADY MARKET',   desc: 'Partly cloudy · Holding ground',     cls: 'flat', col: '#c9a84c' },
+    3:  { label: 'SIDEWAYS TREND',  desc: 'Overcast · Uncertain direction',      cls: 'flat', col: '#c9a84c' },
+    45: { label: 'LOW VISIBILITY',  desc: 'Foggy · Wait and watch',             cls: 'flat', col: '#c9a84c' },
+    48: { label: 'LOW VISIBILITY',  desc: 'Icy fog · Risk-off mode',            cls: 'flat', col: '#c9a84c' },
+    51: { label: 'BEAR MARKET',     desc: 'Light drizzle · Selling pressure',   cls: 'down', col: '#c95252' },
+    53: { label: 'BEAR MARKET',     desc: 'Drizzle · Losses accumulating',      cls: 'down', col: '#c95252' },
+    55: { label: 'BEAR MARKET',     desc: 'Dense drizzle · Deep in red',        cls: 'down', col: '#c95252' },
+    61: { label: 'BEAR MARKET',     desc: 'Slight rain · Dip incoming',         cls: 'down', col: '#c95252' },
+    63: { label: 'BEAR MARKET',     desc: 'Moderate rain · In the red',         cls: 'down', col: '#c95252' },
+    65: { label: 'HEAVY SELLOFF',   desc: 'Heavy rain · Panic selling',         cls: 'down', col: '#c95252' },
+    71: { label: 'FROZEN ASSETS',   desc: 'Slight snow · Trading paused',       cls: 'flat', col: '#5a92c9' },
+    73: { label: 'FROZEN ASSETS',   desc: 'Moderate snow · Assets locked',      cls: 'flat', col: '#5a92c9' },
+    75: { label: 'FROZEN ASSETS',   desc: 'Heavy snow · Circuit breaker',       cls: 'down', col: '#5a92c9' },
+    77: { label: 'FROZEN ASSETS',   desc: 'Snow grains · Market halted',        cls: 'flat', col: '#5a92c9' },
+    80: { label: 'VOLATILE MARKET', desc: 'Rain showers · High turbulence',     cls: 'down', col: '#c95252' },
+    81: { label: 'VOLATILE MARKET', desc: 'Heavy showers · Wild swings',        cls: 'down', col: '#c95252' },
+    82: { label: 'MARKET CRASH',    desc: 'Violent showers · Stop losses hit',  cls: 'down', col: '#c95252' },
+    85: { label: 'FROZEN ASSETS',   desc: 'Snow showers · Liquidity drained',   cls: 'down', col: '#5a92c9' },
+    86: { label: 'FROZEN ASSETS',   desc: 'Heavy snow shower · Total halt',     cls: 'down', col: '#5a92c9' },
+    95: { label: 'MARKET CRASH',    desc: 'Thunderstorm · Black swan event',    cls: 'down', col: '#c95252' },
+    96: { label: 'MARKET CRASH',    desc: 'Storm + hail · Emergency halt',      cls: 'down', col: '#c95252' },
+    99: { label: 'MARKET CRASH',    desc: 'Severe storm · All positions cut',   cls: 'down', col: '#c95252' },
+  };
+
+  function wmo(code) {
+    return WMO[code] || { label: 'MONITORING', desc: 'Analysing conditions...', cls: 'flat', col: '#c9a84c' };
+  }
+
+  function uvLabel(uv) {
+    if (uv <= 2) return 'LOW';
+    if (uv <= 5) return 'MODERATE';
+    if (uv <= 7) return 'HIGH';
+    if (uv <= 10) return 'VERY HIGH';
+    return 'EXTREME';
+  }
+
+  // ── Clock ────────────────────────────────────────────
+  let _clk = null;
+
+  function startClock() {
+    if (_clk) clearInterval(_clk);
+    tick();
+    _clk = setInterval(tick, 1000);
+  }
+
+  function tick() {
+    const el = document.getElementById('clk');
+    if (!el) return;
+    const n = new Date();
+    el.textContent = n.toLocaleTimeString('en-IN', {
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+    });
+  }
+
+  // ── APIs ─────────────────────────────────────────────
+  function getLocation() {
+    return new Promise((ok, fail) => {
+      if (!navigator.geolocation)
+        fail(new Error('Geolocation not supported by this browser.'));
+      else
+        navigator.geolocation.getCurrentPosition(ok,
+          () => fail(new Error('Location access denied. Allow location to fetch your weather.')));
+    });
+  }
+
+  async function getCity(lat, lng) {
+    try {
+      const r = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`);
+      const d = await r.json();
+      return (d.city || d.locality || d.principalSubdivision || 'UNKNOWN').toUpperCase();
+    } catch { return 'UNKNOWN'; }
+  }
+
+  async function getWeather(lat, lng) {
+    const url = `https://api.open-meteo.com/v1/forecast` +
+      `?latitude=${lat}&longitude=${lng}` +
+      `&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code,uv_index` +
+      `&hourly=temperature_2m` +
+      `&timezone=auto&forecast_days=1`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('Weather service unavailable. Please try again.');
+    return r.json();
+  }
+
+  // ── Render ───────────────────────────────────────────
+  function renderWidget(data, city) {
+    const c = data.current;
+    const hourly = data.hourly;
+
+    const temp     = c.temperature_2m;
+    const feels    = c.apparent_temperature;
+    const humidity = c.relative_humidity_2m;
+    const wind     = c.wind_speed_10m;
+    const uv       = c.uv_index ?? 0;
+    const code     = c.weather_code;
+    const info     = wmo(code);
+
+    // 6-hour change
+    const hNow  = new Date().getHours();
+    const h6    = Math.max(0, hNow - 6);
+    const chg   = +(temp - (hourly.temperature_2m[h6] ?? temp)).toFixed(1);
+    const sign  = chg >= 0 ? '+' : '';
+
+    // Forecast: next 6 hours
+    const fcHours = [];
+    for (let i = hNow + 1; i <= Math.min(hNow + 6, 23); i++) {
+      fcHours.push({ h: String(i).padStart(2,'0'), t: hourly.temperature_2m[i] ?? temp });
+    }
+
+    const allT  = fcHours.map(f => f.t);
+    const minT  = Math.min(...allT, temp - 0.1);
+    const maxT  = Math.max(...allT, temp + 0.1);
+    const rng   = maxT - minT || 1;
+
+    const fBars = fcHours.map(f => {
+      const h = Math.round(((f.t - minT) / rng) * 42 + 8);
+      return `<div class="f-col">
+        <span class="f-temp">${f.t.toFixed(0)}°</span>
+        <div class="f-bar" style="height:${h}px"></div>
+        <span class="f-time">${f.h}H</span>
+      </div>`;
+    }).join('');
+
+    // Ticker items
+    const tItems = [
+      `WTH/INR  ${sign}${chg}° · 6H`,
+      `LIQUIDITY  ${humidity}%`,
+      `VOLATILITY  ${wind} KM/H`,
+      `UV EXPOSURE  ${uv} · ${uvLabel(uv)}`,
+      `ADJ VALUE  ₹${Math.abs(feels).toFixed(2)}`,
+      info.label,
+    ];
+    const tHtml = (tItems.map(s =>
+      `<span class="t-item">${s}</span><span class="t-item t-sep">◈</span>`
+    ).join('') ).repeat(2);
+
+    // Split temp into int + decimal parts
+    const absT  = Math.abs(temp);
+    const tInt  = Math.floor(absT);
+    const tDec  = (absT % 1).toFixed(2).slice(1); // ".XX"
+
+    const html = `
+      <!-- HEADER -->
+      <div class="card">
+        <div class="header">
+          <div>
+            <div class="brand-name">◈ &nbsp;Weather Market</div>
+            <div class="location-row">
+              <div class="live-dot"></div>
+              <span>${city}</span>
+            </div>
+          </div>
+          <div>
+            <div class="clock" id="clk">--:--:--</div>
+            <button class="install-btn" id="install-btn" onclick="installApp()">⬇ INSTALL APP</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRICE -->
+      <div class="card">
+        <div class="ticker-row">
+          <span class="ticker-sym">WTH / INR</span>
+          <span class="badge ${info.cls}">${sign}${chg}° &nbsp;6H</span>
+        </div>
+        <div class="price-display">
+          <span class="price-sym">₹</span><span class="price-int">${tInt}</span><span class="price-dec">${tDec}</span>
+        </div>
+        <div class="price-label">Temperature Index &nbsp;·&nbsp; Degrees Celsius</div>
+        <div class="divider"></div>
+        <div class="sentiment-row">
+          <span class="s-badge" style="color:${info.col}">${info.label}</span>
+          <span class="s-desc">${info.desc}</span>
+        </div>
+      </div>
+
+      <!-- METRICS -->
+      <div class="metrics-grid">
+        <div class="metric">
+          <div class="m-label">Liquidity Pool</div>
+          <div class="m-value" style="color:var(--blue)">${humidity}<span class="m-unit">%</span></div>
+          <div class="m-sub">Humidity · Market fluidity</div>
+        </div>
+        <div class="metric">
+          <div class="m-label">Volatility Index</div>
+          <div class="m-value" style="color:var(--gold)">${wind}<span class="m-unit"> km/h</span></div>
+          <div class="m-sub">Wind Speed · Turbulence</div>
+        </div>
+        <div class="metric">
+          <div class="m-label">UV Exposure</div>
+          <div class="m-value" style="color:${uv>7?'var(--red)':uv>4?'var(--gold)':'var(--green)'}">${uv}<span class="m-unit"> UV</span></div>
+          <div class="m-sub">${uvLabel(uv)} · Risk level</div>
+        </div>
+        <div class="metric">
+          <div class="m-label">Adjusted Value</div>
+          <div class="m-value">₹${Math.abs(feels).toFixed(2)}</div>
+          <div class="m-sub">Feels Like · Adj. price</div>
+        </div>
+      </div>
+
+      <!-- FORECAST -->
+      <div class="card">
+        <div class="f-label">6-Hour Price Chart &nbsp;·&nbsp; INR</div>
+        <div class="f-bars">${fBars}</div>
+      </div>
+
+      <!-- TICKER TAPE -->
+      <div class="ticker-tape">
+        <div class="ticker-inner">${tHtml}</div>
+      </div>
+    `;
+
+    document.getElementById('app').innerHTML = `<div class="widget">${html}</div>`;
+
+    if (deferredPrompt) {
+      const btn = document.getElementById('install-btn');
+      if (btn) btn.style.display = 'block';
+    }
+
+    startClock();
+  }
+
+  function showError(msg) {
+    document.getElementById('app').innerHTML = `
+      <div class="widget">
+        <div class="card error-card">
+          <div class="brand-name" style="margin-bottom:20px">◈ &nbsp;WEATHER MARKET</div>
+          <div class="e-title">MARKET DISRUPTION</div>
+          <div class="e-msg">${msg}</div>
+          <button class="retry-btn" onclick="location.reload()">RETRY</button>
+        </div>
+      </div>`;
+  }
+
+  // ── Init ─────────────────────────────────────────────
+  async function init() {
+    try {
+      const pos = await getLocation();
+      const { latitude: lat, longitude: lng } = pos.coords;
+      const [city, weather] = await Promise.all([getCity(lat, lng), getWeather(lat, lng)]);
+      renderWidget(weather, city);
+      setInterval(async () => {
+        try { renderWidget(await getWeather(lat, lng), city); } catch {}
+      }, 600_000);
+    } catch (e) {
+      showError(e.message);
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
